@@ -1,6 +1,5 @@
-import { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
+/** @type {import('@capacitor/cli').CapacitorConfig} */
+const config = {
   appId: 'com.biztrackpro.app',
   appName: 'BizTrack Pro',
   webDir: 'dist',
@@ -9,12 +8,6 @@ const config: CapacitorConfig = {
   },
   plugins: {
     CapacitorSQLite: {
-      iosDatabaseLocation: 'Library/CapacitorDatabase',
-      iosIsEncryption: false,
-      iosKeychainPrefix: 'biztrack',
-      iosBiometric: {
-        biometricAuth: false
-      },
       androidIsEncryption: false,
       androidBiometric: {
         biometricAuth: false
@@ -28,4 +21,4 @@ const config: CapacitorConfig = {
   }
 };
 
-export default config;
+module.exports = config;
