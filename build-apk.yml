@@ -1,0 +1,324 @@
+name: Build BizTrack Pro APK
+
+on:
+  push:
+    branches: [main, develop]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type (debug or release)'
+        required: true
+        default: 'debug'
+        type: choice
+        options:
+          - debug
+          - release
+
+env:
+  NODE_VERSION: '20'
+  JAVA_VERSION: '17'
+
+jobs:
+  # ─── Job 1: Build Web Assets ─────────────────────────────────────────────────
+  build-web:
+    name: 🌐 Build Web Assets
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate cache key
+        id: cache-key
+        run: echo "key=web-${{ hashFiles('package-lock.json', 'src/**', 'index.html', 'vite.config.js') }}" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: dist/
+          retention-days: 1
+
+  # ─── Job 2: Sync Capacitor ───────────────────────────────────────────────────
+  sync-capacitor:
+    name: 🔄 Sync Capacitor Android
+    runs-on: ubuntu-latest
+    needs: build-web
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download web dist
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist/
+
+      - name: Add Android platform (if not present)
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+
+      - name: Sync Capacitor with Android
+        run: npx cap sync android
+
+      - name: Upload Android project
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-project
+          path: android/
+          retention-days: 1
+
+  # ─── Job 3: Build Debug APK ──────────────────────────────────────────────────
+  build-debug-apk:
+    name: 🔧 Build Debug APK
+    runs-on: ubuntu-latest
+    needs: sync-capacitor
+    if: github.event.inputs.build_type != 'release' || github.event.inputs.build_type == ''
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download web dist
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist/
+
+      - name: Download Android project
+        uses: actions/download-artifact@v4
+        with:
+          name: android-project
+          path: android/
+
+      - name: Setup Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*', 'android/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Find APK
+        id: find-apk
+        run: |
+          APK_PATH=$(find android -name "*.apk" -path "*/debug/*" | head -1)
+          echo "path=$APK_PATH" >> $GITHUB_OUTPUT
+          echo "Found APK: $APK_PATH"
+
+      - name: Rename APK
+        run: |
+          mkdir -p output
+          cp "${{ steps.find-apk.outputs.path }}" "output/BizTrackPro-debug-${{ github.sha }}.apk"
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BizTrackPro-Debug-APK
+          path: output/BizTrackPro-debug-*.apk
+          retention-days: 30
+
+      - name: Post APK summary
+        run: |
+          APK_SIZE=$(du -sh "output/BizTrackPro-debug-${{ github.sha }}.apk" | cut -f1)
+          echo "## ✅ Debug APK Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **File** | BizTrackPro-debug-${{ github.sha }}.apk |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Size** | $APK_SIZE |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Build** | Debug |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Download from the **Artifacts** section above." >> $GITHUB_STEP_SUMMARY
+
+  # ─── Job 4: Build Release APK (signed) ───────────────────────────────────────
+  build-release-apk:
+    name: 🚀 Build Release APK (Signed)
+    runs-on: ubuntu-latest
+    needs: sync-capacitor
+    if: github.event.inputs.build_type == 'release' || startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download web dist
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist/
+
+      - name: Download Android project
+        uses: actions/download-artifact@v4
+        with:
+          name: android-project
+          path: android/
+
+      - name: Decode keystore
+        if: secrets.KEYSTORE_BASE64 != ''
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/keystore.jks
+          echo "Keystore decoded successfully"
+
+      - name: Setup Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle*', 'android/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build Release APK (signed)
+        env:
+          KEYSTORE_PATH: keystore.jks
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+        run: |
+          cd android
+          if [ -f "app/keystore.jks" ]; then
+            ./gradlew assembleRelease \
+              -Pandroid.injected.signing.store.file=app/keystore.jks \
+              -Pandroid.injected.signing.store.password="$STORE_PASSWORD" \
+              -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+              -Pandroid.injected.signing.key.password="$KEY_PASSWORD" \
+              --no-daemon --stacktrace
+          else
+            echo "⚠️ No keystore found — building unsigned release"
+            ./gradlew assembleRelease --no-daemon --stacktrace
+          fi
+
+      - name: Find Release APK
+        id: find-release-apk
+        run: |
+          APK_PATH=$(find android -name "*.apk" -path "*/release/*" | head -1)
+          echo "path=$APK_PATH" >> $GITHUB_OUTPUT
+
+      - name: Get version
+        id: get-version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          if [[ "$VERSION" == "refs/"* ]]; then VERSION="v3.0.0"; fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Rename Release APK
+        run: |
+          mkdir -p output
+          cp "${{ steps.find-release-apk.outputs.path }}" "output/BizTrackPro-${{ steps.get-version.outputs.version }}.apk"
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BizTrackPro-Release-APK
+          path: output/BizTrackPro-*.apk
+          retention-days: 90
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: output/BizTrackPro-*.apk
+          name: "BizTrack Pro ${{ steps.get-version.outputs.version }}"
+          body: |
+            ## BizTrack Pro ${{ steps.get-version.outputs.version }}
+
+            ### What's included
+            - ✅ Full business ERP: Sales, Inventory, Expenses, Suppliers
+            - 🗄️ SQLite local database (data stored on your phone)
+            - 📊 Excel / Google Sheets export
+            - 📄 PDF receipt generation with WhatsApp sharing
+            - 📈 Profit & Loss engine with full reports
+            - 💰 Multi-currency support
+            - 📦 Inventory management with restock alerts
+
+            ### Install
+            1. Download the APK file below
+            2. Enable "Install from unknown sources" on your Android device
+            3. Open the APK file to install
+
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post release summary
+        run: |
+          echo "## 🚀 Release APK Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.get-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**APK:** BizTrackPro-${{ steps.get-version.outputs.version }}.apk" >> $GITHUB_STEP_SUMMARY
