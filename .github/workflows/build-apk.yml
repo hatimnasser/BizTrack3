@@ -2,7 +2,7 @@ name: Build BizTrack Pro APK
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, BizTrack3-v2]
     tags:
       - 'v*'
   pull_request:
