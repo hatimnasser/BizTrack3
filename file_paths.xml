@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Cache dir — for temporary PDF receipts -->
+    <cache-path name="cache" path="." />
+    <!-- External files dir — for saved Excel exports -->
+    <external-files-path name="external_files" path="." />
+    <!-- Internal files -->
+    <files-path name="files" path="." />
+    <!-- External storage -->
+    <external-path name="external_storage" path="." />
+</paths>
