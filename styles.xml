@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#1B3A4B</item>
+        <item name="colorPrimaryDark">#122737</item>
+        <item name="colorAccent">#E8A020</item>
+    </style>
+
+    <!-- Theme for splash / launch — no action bar -->
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="android:background">@drawable/splash</item>
+    </style>
+</resources>
