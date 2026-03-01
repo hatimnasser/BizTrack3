@@ -488,7 +488,7 @@ export async function addReturn(r) {
 
 // ─── AUDIT & WMA LOG ─────────────────────────────────────────────────────────
 export async function getAuditLog() { return dbQuery('SELECT * FROM audit_log ORDER BY date DESC LIMIT 200'); }
-export { getWMAHistory };
+
 
 // ─── REPORTS ─────────────────────────────────────────────────────────────────
 export async function getReportData(from, to) {
