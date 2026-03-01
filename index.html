@@ -1246,7 +1246,8 @@ function initSheetGestures(){
 window.overlayClick=e=>{if(e.target===document.getElementById('overlay'))closeSheet();};
 
 // ── ONBOARDING ────────────────────────────────────────────────────────────────
-window.finishOnboarding=async()=>{
+window.finishOnboarding=async(ev)=>{
+  if(ev&&typeof ev.preventDefault==='function')ev.preventDefault();
   const biz=v('ob-biz').trim();
   if(!biz){toast('Please enter your business name');return;}
   S={bizName:biz,owner:v('ob-owner'),type:v('ob-type'),currency:v('ob-currency'),payTerms:30,taxRate:0,lowStock:5,invoiceFooter:'Thank you for your business!'};
