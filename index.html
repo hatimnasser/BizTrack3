@@ -220,6 +220,54 @@ textarea.fc{resize:vertical;min-height:64px}
 .perf-bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s}
 .month-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--primary-dim);color:var(--primary);margin-right:6px;margin-bottom:6px;cursor:pointer}
 .month-badge.active{background:var(--primary);color:#fff}
+
+/* ── Unit Conversion Engine ── */
+.uce-panel{background:var(--primary-dim);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:12px;border-left:3px solid var(--primary)}
+.uce-panel-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--primary);margin-bottom:8px}
+.uce-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(27,58,75,.08)}
+.uce-row:last-child{border-bottom:none}
+.uce-row .lbl{color:var(--text3);font-weight:500}
+.uce-row .val{font-weight:700;font-family:var(--mono);font-size:13px}
+.uce-arrow{display:inline-flex;align-items:center;gap:6px;background:rgba(27,58,75,.08);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--primary);margin:6px 0}
+
+/* ── WMA Preview (live calc panel in restock) ── */
+.wma-live{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:12px;display:none}
+.wma-live.show{display:block;animation:pgIn .15s ease}
+.wma-live-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:8px}
+.wma-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)}
+.wma-row:last-child{border-bottom:none;padding-top:8px;margin-top:4px;border-top:2px solid var(--border)}
+.wma-row .wl{color:var(--text3)}
+.wma-row .wv{font-weight:700;font-family:var(--mono);font-size:13px}
+.wma-direction{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.wma-up{background:var(--danger-bg);color:var(--danger)}
+.wma-dn{background:var(--success-bg);color:var(--success)}
+.wma-nc{background:var(--primary-dim);color:var(--primary)}
+
+/* ── WMA Alert Modal ── */
+.wma-alert-header{border-radius:var(--r-sm);padding:16px;margin-bottom:14px;text-align:center}
+.wma-alert-header.gain{background:linear-gradient(135deg,var(--success) 0%,#3a8c64 100%);color:#fff}
+.wma-alert-header.protect{background:linear-gradient(135deg,#C1440E 0%,#E85D2A 100%);color:#fff}
+.wma-alert-header.initial{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-lt) 100%);color:#fff}
+.wma-alert-header .wma-icon{font-size:32px;margin-bottom:6px;display:block}
+.wma-alert-header .wma-type{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-bottom:4px}
+.wma-alert-header .wma-title{font-size:17px;font-weight:800;line-height:1.2}
+.wma-alert-header .wma-sub{font-size:12px;opacity:.8;margin-top:4px}
+.wma-calc-table{background:var(--surface2);border-radius:var(--r-sm);overflow:hidden;margin-bottom:12px}
+.wma-calc-row{display:flex;justify-content:space-between;padding:10px 13px;border-bottom:1px solid var(--border);font-size:12px}
+.wma-calc-row:last-child{border-bottom:none}
+.wma-calc-row.total{font-weight:700;background:rgba(27,58,75,.04);font-size:13px}
+.wma-calc-row .cl{color:var(--text3);font-weight:500}
+.wma-calc-row .cv{font-weight:700;font-family:var(--mono)}
+.wma-calc-row .cv.g{color:var(--success)}
+.wma-calc-row .cv.r{color:var(--danger)}
+.wma-calc-row .cv.a{color:var(--accent)}
+.wma-suggestion{background:var(--warning-bg);border:1.5px solid rgba(181,122,0,.3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:12px}
+.wma-suggestion-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--warning);margin-bottom:4px}
+.wma-suggestion-price{font-size:22px;font-weight:800;font-family:var(--mono);color:var(--warning)}
+.wma-history-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
+.wma-history-row:last-child{border-bottom:none}
+.wma-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.wma-dot.gain{background:var(--success)}.wma-dot.protect{background:var(--danger)}.wma-dot.initial{background:var(--primary)}.wma-dot.nc{background:var(--muted)}
 </style>
 </head>
 <body>
@@ -537,65 +585,154 @@ textarea.fc{resize:vertical;min-height:64px}
   <button class="btn btn-ghost btn-block mt8" onclick="closeSheet()">Close</button>
 </div>
 
-<!-- ADD PRODUCT -->
+<!-- ADD / RESTOCK PRODUCT — Unit Conversion Engine -->
 <div class="sheet" id="sh-product" style="display:none">
   <div class="sheet-handle"></div>
-  <div class="sheet-title">📦 Add / Restock Product</div>
+  <div class="sheet-title">📦 Products &amp; Stock</div>
   <div class="tabs" id="rst-tabs">
     <button class="tab active" onclick="rstTab('new',this)">New Product</button>
-    <button class="tab" onclick="rstTab('restock',this)">Restock Existing</button>
+    <button class="tab" onclick="rstTab('restock',this)">Restock (WMA)</button>
+    <button class="tab" onclick="rstTab('history',this)">Cost History</button>
   </div>
+
+  <!-- ── NEW PRODUCT ── -->
   <div class="tab-panel active" id="rst-new">
-    <div class="fg"><label>Product Name *</label><input class="fc" id="rst-name" placeholder="e.g. Maize Flour 2kg"></div>
-    <div class="alert al-i" style="font-size:12px;margin-bottom:12px">💡 For bulk items (e.g. buy a bag, sell per kg): set Purchase Unit = bag, Sale Unit = kg, and Conversion Factor = how many kg per bag.</div>
-    <div class="fr">
-      <div class="fg"><label>Purchase Unit</label>
-        <select class="fc" id="rst-pu"><option>pcs</option><option>bag</option><option>carton</option><option>crate</option><option>box</option><option>kg</option><option>litre</option><option>bundle</option><option>roll</option><option>dozen</option></select>
+    <div class="fg"><label>Product Name *</label><input class="fc" id="rst-name" placeholder="e.g. Sugar, Soda Crate, A4 Books Ream"></div>
+
+    <div class="uce-panel">
+      <div class="uce-panel-title">⚖️ Unit Conversion Engine</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Define how you BUY vs how you SELL. Leave Conversion Factor = 1 if the same.</div>
+      <div class="fr">
+        <div class="fg" style="margin:0">
+          <label>Base Unit <span style="font-weight:400;color:var(--muted);font-size:10px">(you SELL per)</span></label>
+          <select class="fc" id="rst-bu" onchange="updateRstConv()">
+            <option>pcs</option><option>kg</option><option>g</option><option>litre</option><option>ml</option>
+            <option>bottle</option><option>plate</option><option>cup</option><option>slice</option>
+            <option>metre</option><option>sheet</option><option>book</option><option>pair</option><option>quire</option>
+          </select>
+        </div>
+        <div class="fg" style="margin:0">
+          <label>Purchase Unit <span style="font-weight:400;color:var(--muted);font-size:10px">(you BUY per)</span></label>
+          <select class="fc" id="rst-pu" onchange="updateRstConv()">
+            <option>pcs</option><option>bag</option><option>crate</option><option>carton</option><option>box</option>
+            <option>dozen</option><option>roll</option><option>bundle</option><option>sack</option>
+            <option>ream</option><option>gross</option><option>pallet</option><option>kg</option><option>litre</option>
+          </select>
+        </div>
       </div>
-      <div class="fg"><label>Sale Unit</label>
-        <select class="fc" id="rst-su"><option>pcs</option><option>kg</option><option>g</option><option>ml</option><option>litre</option><option>bottle</option><option>slice</option><option>cup</option><option>portion</option><option>metre</option></select>
+      <div class="fg" style="margin-top:10px">
+        <label>Conversion Factor <span style="font-weight:400;color:var(--muted);font-size:10px">(Base Units per Purchase Unit)</span></label>
+        <input type="number" class="fc" id="rst-cf" value="1" min="0.001" step="0.001" oninput="updateRstConv()">
+        <div class="fhint" id="rst-cf-hint" style="margin-top:5px;padding:6px 10px;background:var(--primary-dim);border-radius:6px;color:var(--primary);font-weight:600"></div>
       </div>
     </div>
-    <div class="fg"><label>Conversion Factor <span style="font-weight:400;font-size:11px;color:var(--muted)">(how many sale units per purchase unit)</span></label>
-      <input type="number" class="fc" id="rst-cf" value="1" min="0.001" step="0.001" oninput="updateRstConv()">
-      <div class="fhint" id="rst-cf-hint"></div>
+
+    <div class="fr">
+      <div class="fg">
+        <label>Category</label>
+        <select class="fc" id="rst-cat">
+          <option>Food &amp; Beverages</option><option>Household</option><option>Hardware</option>
+          <option>Clothing</option><option>Beauty &amp; Personal Care</option><option>Stationery</option>
+          <option>Medicine</option><option>Services</option><option>Electronics</option><option>Other</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Reorder Level <span style="font-weight:400;color:var(--muted);font-size:10px">(base units)</span></label>
+        <input type="number" class="fc" id="rst-reorder" value="5" min="0">
+      </div>
     </div>
     <div class="fr">
-      <div class="fg"><label>Category</label>
-        <select class="fc" id="rst-cat"><option>Food &amp; Beverages</option><option>Household</option><option>Hardware</option><option>Clothing</option><option>Beauty &amp; Personal Care</option><option>Stationery</option><option>Medicine</option><option>Services</option><option>Electronics</option><option>Other</option></select>
+      <div class="fg">
+        <label>Cost per <span id="rst-cost-lbl">Purchase Unit</span> *</label>
+        <input type="number" class="fc" id="rst-cost" placeholder="0" oninput="updateRstPrev()">
       </div>
-      <div class="fg"><label>Unit (display)</label>
-        <select class="fc" id="rst-unit"><option>pcs</option><option>kg</option><option>g</option><option>litres</option><option>ml</option><option>boxes</option><option>packets</option><option>metres</option><option>pairs</option><option>sessions</option><option>dozen</option></select>
+      <div class="fg">
+        <label>Sell Price per <span id="rst-sell-lbl">Base Unit</span> *</label>
+        <input type="number" class="fc" id="rst-sell" placeholder="0" oninput="updateRstPrev()">
       </div>
-    </div>
-    <div class="fr">
-      <div class="fg"><label>Cost Price *</label><input type="number" class="fc" id="rst-cost" placeholder="0" oninput="updateRstPrev()"></div>
-      <div class="fg"><label>Selling Price *</label><input type="number" class="fc" id="rst-sell" placeholder="0" oninput="updateRstPrev()"></div>
     </div>
     <div class="fprev" id="rst-prev" style="display:none">
-      <div class="fprev-row"><span class="l">Profit/unit</span><span class="v g" id="rst-p">—</span></div>
-      <div class="fprev-row"><span class="l">Margin</span><span class="v g" id="rst-m">—</span></div>
+      <div class="fprev-row"><span class="l" id="rst-p-lbl">Cost / base unit</span><span class="v" id="rst-p-cost">—</span></div>
+      <div class="fprev-row"><span class="l">Profit / base unit</span><span class="v g" id="rst-p">—</span></div>
+      <div class="fprev-row"><span class="l">Gross Margin</span><span class="v g" id="rst-m">—</span></div>
     </div>
     <div class="fr">
-      <div class="fg"><label>Opening Stock</label><input type="number" class="fc" id="rst-qty" placeholder="0"></div>
-      <div class="fg"><label>Reorder Level</label><input type="number" class="fc" id="rst-reorder" value="5"></div>
+      <div class="fg">
+        <label>Opening Stock <span style="font-weight:400;color:var(--muted);font-size:10px">(in purchase units)</span></label>
+        <input type="number" class="fc" id="rst-qty" placeholder="0" min="0" step="0.001">
+        <div class="fhint" id="rst-qty-hint"></div>
+      </div>
     </div>
-    <button class="btn btn-p" onclick="submitProduct()">💾 Add Product</button>
+    <button class="btn btn-p mt8" onclick="submitProduct()">💾 Add Product</button>
   </div>
+
+  <!-- ── RESTOCK WITH WMA ── -->
   <div class="tab-panel" id="rst-restock">
-    <div class="fg"><label>Select Product *</label><select class="fc" id="rst-existing" onchange="fillRst()"><option value="">— choose product —</option></select></div>
+    <div class="fg"><label>Select Product *</label>
+      <select class="fc" id="rst-existing" onchange="fillRst()"><option value="">— choose product —</option></select>
+    </div>
+
     <div id="rst-info" style="display:none">
-      <div class="alert al-i" id="rst-stock-info" style="margin-bottom:12px"></div>
+      <!-- Current state summary -->
+      <div class="uce-panel" id="rst-current-state">
+        <div class="uce-panel-title">📊 Current State</div>
+        <div class="uce-row"><span class="lbl">In Stock</span><span class="val" id="rst-cur-stock">—</span></div>
+        <div class="uce-row"><span class="lbl">WMA Cost / base unit</span><span class="val" id="rst-cur-wma">—</span></div>
+        <div class="uce-row"><span class="lbl">Sell Price / base unit</span><span class="val" id="rst-cur-sell">—</span></div>
+        <div class="uce-row"><span class="lbl">Current Margin</span><span class="val" id="rst-cur-margin">—</span></div>
+        <div class="uce-row"><span class="lbl">Unit Conversion</span><span class="val" id="rst-cur-conv">—</span></div>
+      </div>
+
+      <!-- This restocking -->
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px">This Restocking</div>
       <div class="fr">
-        <div class="fg"><label>New Cost Price</label><input type="number" class="fc" id="rst-nc" placeholder="Keep current"></div>
-        <div class="fg"><label>New Sell Price</label><input type="number" class="fc" id="rst-ns" placeholder="Keep current"></div>
+        <div class="fg">
+          <label>Qty Purchased <span style="font-weight:400;color:var(--muted);font-size:10px" id="rst-pu-lbl">(purchase units)</span></label>
+          <input type="number" class="fc" id="rst-addqty" min="0.001" step="0.001" placeholder="0" oninput="updateWMAPreview()">
+        </div>
+        <div class="fg">
+          <label>Bulk Cost per <span id="rst-bulk-lbl">Purchase Unit</span> *</label>
+          <input type="number" class="fc" id="rst-nc" placeholder="e.g. 24000 per crate" oninput="updateWMAPreview()">
+        </div>
       </div>
-      <div class="fg"><label id="rst-addqty-label">Qty to Add *</label><input type="number" class="fc" id="rst-addqty" min="0.001" step="0.001" placeholder="0">
-        <div class="fhint" id="rst-addqty-hint"></div>
+      <div class="fg">
+        <label>Update Sell Price per <span id="rst-sell-lbl2">base unit</span> <span style="font-weight:400;color:var(--muted);font-size:10px">(optional)</span></label>
+        <input type="number" class="fc" id="rst-ns" placeholder="Leave blank to keep current" oninput="updateWMAPreview()">
       </div>
-      <button class="btn btn-p" onclick="submitRestock()">➕ Add Stock</button>
+
+      <!-- WMA Live Preview -->
+      <div class="wma-live" id="wma-live-panel">
+        <div class="wma-live-title">⚖️ Weighted Moving Average Calculation</div>
+        <div class="wma-row"><span class="wl">Existing stock value</span><span class="wv" id="wlp-exist-val">—</span></div>
+        <div class="wma-row"><span class="wl">New batch value</span><span class="wv" id="wlp-new-val">—</span></div>
+        <div class="wma-row"><span class="wl">Base units being added</span><span class="wv" id="wlp-units-add">—</span></div>
+        <div class="wma-row"><span class="wl">New cost per base unit</span><span class="wv" id="wlp-new-cpu">—</span></div>
+        <div class="wma-row">
+          <span class="wl">New WMA Cost</span>
+          <span class="wv" style="display:flex;align-items:center;gap:8px">
+            <span id="wlp-wma">—</span>
+            <span id="wlp-direction" class="wma-direction wma-nc" style="display:none"></span>
+          </span>
+        </div>
+        <div class="wma-row" style="border-top:2px solid var(--border)">
+          <span class="wl" style="font-weight:700">Projected Margin</span>
+          <span class="wv" id="wlp-margin" style="font-size:14px">—</span>
+        </div>
+        <div class="wma-row"><span class="wl">New Total Stock</span><span class="wv" id="wlp-new-stock">—</span></div>
+      </div>
+
+      <button class="btn btn-p" onclick="submitRestock()">✅ Confirm Restock</button>
     </div>
   </div>
+
+  <!-- ── COST HISTORY ── -->
+  <div class="tab-panel" id="rst-history">
+    <div class="fg" style="margin-top:4px"><label>Select Product</label>
+      <select class="fc" id="rst-hist-prod" onchange="loadWMAHistory()"><option value="">— choose product —</option></select>
+    </div>
+    <div id="wma-history-output"></div>
+  </div>
+
   <button class="btn btn-ghost btn-block mt8" onclick="closeSheet()">Cancel</button>
 </div>
 
@@ -665,6 +802,20 @@ textarea.fc{resize:vertical;min-height:64px}
   <button class="btn btn-ghost btn-block mt8" onclick="closeSheet()">Cancel</button>
 </div>
 
+<!-- WMA ALERT MODAL (post-restock) -->
+<div class="sheet" id="sh-wma-alert" style="display:none">
+  <div class="sheet-handle"></div>
+  <div id="wma-alert-header" class="wma-alert-header initial">
+    <span class="wma-icon" id="wma-alert-icon">📦</span>
+    <div class="wma-type" id="wma-alert-type">RESTOCK</div>
+    <div class="wma-title" id="wma-alert-title">Stock Updated</div>
+    <div class="wma-sub" id="wma-alert-sub"></div>
+  </div>
+  <div id="wma-alert-body"></div>
+  <div id="wma-alert-actions"></div>
+  <button class="btn btn-ghost btn-block mt8" onclick="closeSheet()">Dismiss</button>
+</div>
+
 <!-- CLIENT LEDGER -->
 <div class="sheet" id="sh-client-ledger" style="display:none">
   <div class="sheet-handle"></div>
@@ -676,6 +827,7 @@ textarea.fc{resize:vertical;min-height:64px}
 
 <script type="module">
 import { initDB,getSettings,saveSettings as dbSave,getInventory,addProduct,updateProductStock,deleteProduct,
+  restockWithWMA,getWMAHistory,
   getSales,addSale,getSaleById,recordPayment,deleteSale,getExpenses,addExpense,deleteExpense,
   getPayables,addPayable,settlePayable,deletePayable,
   getSuppliers,addSupplier,deleteSupplier,getCustomers,upsertCustomer,
@@ -764,7 +916,7 @@ window.openSheet=id=>{
   const sh=document.getElementById(id);
   if(sh)sh.style.display='block';
   if(id==='sh-sale'){populateDatalists();sv('s-product','');sv('s-qty','1');sv('s-price','');sv('s-cost','');sv('s-disc','0');sv('s-paid','');sv('s-customer','');sv('s-phone','');sv('s-notes','');document.getElementById('s-prev').style.display='none';document.getElementById('s-bal-prev').style.display='none';document.getElementById('s-prod-hint').textContent='';}
-  if(id==='sh-product')populateRstDropdown();
+  if(id==='sh-product'){populateRstDropdowns();}
 };
 window.closeSheet=()=>{document.getElementById('overlay').classList.remove('on');document.querySelectorAll('.sheet').forEach(s=>s.style.display='none');};
 
@@ -861,7 +1013,7 @@ function renderDashboard(){
 
   document.getElementById('db-low').innerHTML=lowStock.length===0
     ?'<div class="empty" style="padding:18px"><div class="empty-ttl">✅ All stock OK</div></div>'
-    :lowStock.slice(0,5).map(p=>`<div class="row"><div class="row-ico" style="background:var(--warning-bg)">📦</div><div class="row-body"><div class="row-title">${esc(p.name)}</div><div class="row-sub">${p.category||'—'}</div></div><div class="row-right"><div class="row-val r">${p.stock||0} ${p.unit||''}</div><span class="badge ${p.stock<=0?'b-out':'b-low'}">${p.stock<=0?'Out':'Low'}</span></div></div>`).join('');
+    :lowStock.slice(0,5).map(p=>`<div class="row"><div class="row-ico" style="background:var(--warning-bg)">📦</div><div class="row-body"><div class="row-title">${esc(p.name)}</div><div class="row-sub">${p.category||'—'} · Alert @ ${p.reorderLevel??S.lowStock??5}</div></div><div class="row-right"><div class="row-val r">${p.stock||0} ${pBaseUnit(p)}</div><span class="badge ${p.stock<=0?'b-out':'b-low'}">${p.stock<=0?'Out':'Low'}</span></div></div>`).join('');
 }
 
 // ── SALES ─────────────────────────────────────────────────────────────────────
@@ -987,12 +1139,17 @@ window.onProdInput=()=>{
   const name=v('s-product');
   const p=INV.find(x=>x.name.toLowerCase()===name.toLowerCase());
   if(p){
-    sv('s-price',p.sellPrice);sv('s-cost',p.costPrice);
+    const bu=pBaseUnit(p),pu=pPurchaseUnit(p),cf=p.conversionFactor||1;
+    const wma=pWMACost(p);
+    sv('s-price',p.sellPrice);
+    sv('s-cost',wma); // seed with WMA cost for accurate profit calc
     const ul=document.getElementById('s-unit-lbl');
-    if(ul) ul.textContent='('+p.saleUnit+')';
-    let hint=`Stock: ${p.stock} ${p.saleUnit} · Cost ${fmt(p.costPrice)}/${p.saleUnit} · Sell ${fmt(p.sellPrice)}/${p.saleUnit}`;
-    if(p.conversionFactor&&p.conversionFactor>1&&p.purchaseUnit!==p.saleUnit)
-      hint+=` · [Bulk: 1 ${p.purchaseUnit} = ${p.conversionFactor} ${p.saleUnit}]`;
+    if(ul) ul.textContent='('+bu+')';
+    const isBulk=cf>1||bu!==pu;
+    let hint=`Stock: ${p.stock||0} ${bu} · WMA Cost ${fmt(wma)}/${bu} · Sell ${fmt(p.sellPrice||0)}/${bu}`;
+    if(isBulk) hint+=` · [1 ${pu} = ${cf} ${bu}]`;
+    const margin=p.sellPrice>0?((p.sellPrice-wma)/p.sellPrice*100).toFixed(1):0;
+    hint+=` · ${margin}% margin`;
     document.getElementById('s-prod-hint').textContent=hint;
   } else {
     const ul=document.getElementById('s-unit-lbl');if(ul)ul.textContent='';
@@ -1035,8 +1192,10 @@ window.submitSale=async()=>{
   const phone=v('s-phone').trim();
   const dueDate=new Date(Date.now()+(S.payTerms||30)*86400000).toISOString().slice(0,10);
   const invItem=INV.find(x=>x.name.toLowerCase()===product.toLowerCase());
+  const saleBaseUnit=invItem?pBaseUnit(invItem):'pcs';
+  const saleCost=invItem?pWMACost(invItem):cost; // always snapshot WMA cost at time of sale
   const id='SL-'+Date.now();
-  const sale={id,product,category:invItem?.category||'',saleUnit:invItem?.saleUnit||'pcs',qty,unitPrice:price,costPrice:cost,
+  const sale={id,product,category:invItem?.category||'',saleUnit:saleBaseUnit,qty,unitPrice:price,costPrice:saleCost,
     discount:disc,total,paid,balance,status,customer,phone,
     method:v('s-method'),notes:v('s-notes'),dueDate,date:new Date().toISOString(),inventoryId:invItem?.id||null};
   SALES.unshift(sale);
@@ -1192,21 +1351,26 @@ function renderInventory(){
   const q=(v('inv-search')||'').toLowerCase();
   const list=INV.filter(p=>!q||(p.name||'').toLowerCase().includes(q)||(p.category||'').toLowerCase().includes(q));
   const globalThr=S.lowStock||5;
-  const el=document.getElementById('inv-list');
+  const el=document.getElementById('inv-list');if(!el)return;
   if(list.length===0){el.innerHTML='<div class="empty"><div class="empty-ico">📦</div><div class="empty-ttl">No products yet</div><div class="empty-sub">Tap "Add Product" to begin</div></div>';return;}
   el.innerHTML=list.map(p=>{
     const st=p.stock||0;
-    // Per-product reorderLevel > global settings fallback
+    const bu=pBaseUnit(p), pu=pPurchaseUnit(p), cf=p.conversionFactor||1;
+    const wma=pWMACost(p), sell=p.sellPrice||0;
     const re=(p.reorderLevel!=null&&p.reorderLevel>=0)?p.reorderLevel:globalThr;
     const badge=st<=0?'<span class="badge b-out">Out</span>':st<=re?'<span class="badge b-low">Low</span>':'<span class="badge b-ok">OK</span>';
     const bg=st<=0?'var(--danger-bg)':st<=re?'var(--warning-bg)':'var(--success-bg)';
-    const unitInfo=p.conversionFactor>1?`${p.purchaseUnit}→${p.saleUnit} (×${p.conversionFactor})`:(p.saleUnit||p.unit||'pcs');
+    const margin=sell>0?((sell-wma)/sell*100).toFixed(0):0;
+    const isBulk=cf>1||bu!==pu;
+    const convInfo=isBulk?`1 ${pu}=${cf}${bu}`:'';
     return `<div class="row" style="cursor:pointer" onclick="editProduct('${p.id}')">
       <div class="row-ico" style="background:${bg}">📦</div>
-      <div class="row-body"><div class="row-title">${esc(p.name)}</div>
-      <div class="row-sub">${p.category||'—'} · ${unitInfo} · Sell ${fmt(p.sellPrice||0)} · Alert@${re}</div></div>
+      <div class="row-body">
+        <div class="row-title">${esc(p.name)}</div>
+        <div class="row-sub">${p.category||'—'} · WMA ${fmt(wma)}/${bu} · ${margin}% margin${convInfo?' · '+convInfo:''}</div>
+      </div>
       <div class="row-right" onclick="event.stopPropagation()">
-        <div class="row-val">${st} <small style="font-size:10px;color:var(--muted)">${p.saleUnit||p.unit||'pcs'}</small></div>
+        <div class="row-val">${st} <small style="font-size:10px;color:var(--muted)">${bu}</small></div>
         ${badge}
         <button onclick="confirmDeleteProduct('${p.id}')" style="background:none;border:none;font-size:13px;color:var(--muted);cursor:pointer;padding:2px 4px;margin-top:2px;display:block">🗑️</button>
       </div>
@@ -1215,106 +1379,319 @@ function renderInventory(){
 }
 window.renderInventory=renderInventory;
 
-function populateRstDropdown(){
-  const sel=document.getElementById('rst-existing');if(!sel)return;
-  sel.innerHTML='<option value="">— choose product —</option>'+INV.map(p=>`<option value="${p.id}">${esc(p.name)} (stock: ${p.stock||0})</option>`).join('');
+// ─── INVENTORY JS ─────────────────────────────────────────────────────────────
+
+// Helper: get base unit for a product (v4 uses baseUnit, v3 used saleUnit)
+const pBaseUnit=(p)=>p.baseUnit||p.saleUnit||p.unit||'pcs';
+const pPurchaseUnit=(p)=>p.purchaseUnit||pBaseUnit(p);
+const pWMACost=(p)=>p.wmaCost||p.costPrice||0;
+
+function populateRstDropdowns(){
+  const opts='<option value="">— choose product —</option>'+
+    INV.map(p=>`<option value="${p.id}">${esc(p.name)} · ${p.stock||0} ${pBaseUnit(p)}</option>`).join('');
+  const s1=document.getElementById('rst-existing');if(s1)s1.innerHTML=opts;
+  const s2=document.getElementById('rst-hist-prod');if(s2)s2.innerHTML=opts;
 }
-window.fillRst=()=>{
-  const id=v('rst-existing'),p=INV.find(x=>x.id===id);
-  if(!p){document.getElementById('rst-info').style.display='none';return;}
-  const isBulk=p.conversionFactor>1&&p.purchaseUnit&&p.purchaseUnit!==p.saleUnit;
-  const stockInfo=document.getElementById('rst-stock-info');
-  if(stockInfo){
-    stockInfo.textContent=isBulk
-      ? `Stock: ${p.stock||0} ${p.saleUnit||'pcs'} · Cost ${fmt(p.costPrice||0)}/${p.saleUnit||'pcs'} · Sell ${fmt(p.sellPrice||0)}/${p.saleUnit||'pcs'} · Bulk: 1 ${p.purchaseUnit} = ${p.conversionFactor} ${p.saleUnit}`
-      : `Stock: ${p.stock||0} ${p.saleUnit||'pcs'} · Cost ${fmt(p.costPrice||0)} · Sell ${fmt(p.sellPrice||0)}`;
-  }
-  // Update label to show what unit to enter
-  const addQtyLabel=document.getElementById('rst-addqty-label');
-  if(addQtyLabel) addQtyLabel.textContent=isBulk?`Qty to Add (in ${p.purchaseUnit}s)`:'Qty to Add';
-  const hint=document.getElementById('rst-addqty-hint');
-  if(hint) hint.textContent=isBulk?`Each ${p.purchaseUnit} = ${p.conversionFactor} ${p.saleUnit} — stock will increase by qty × ${p.conversionFactor}`:'';
-  sv('rst-nc','');sv('rst-ns','');sv('rst-addqty','');
-  document.getElementById('rst-info').style.display='block';
-};
+// Legacy alias
+function populateRstDropdown(){populateRstDropdowns();}
+
+// ── UCE: update conversion hint and cost labels when user changes base/purchase unit or CF
 window.updateRstConv=()=>{
-  const pu=v('rst-pu')||'pcs',su=v('rst-su')||'pcs',cf=parseFloat(v('rst-cf'))||1;
+  const bu=v('rst-bu')||'pcs', pu=v('rst-pu')||'pcs', cf=parseFloat(v('rst-cf'))||1;
+  const isBulk=cf>1||bu!==pu;
   const hint=document.getElementById('rst-cf-hint');
   if(hint){
-    if(cf>1&&pu!==su) hint.textContent=`1 ${pu} = ${cf} ${su}. Enter cost per ${pu} — app divides to cost per ${su} automatically.`;
-    else hint.textContent=`1 ${pu} = 1 ${su} (no conversion)`;
+    if(isBulk) hint.textContent=`1 ${pu} = ${cf} ${bu} — enter cost as price per ${pu}; app calculates cost per ${bu} automatically`;
+    else hint.textContent=`Same unit for buying and selling — no conversion needed`;
   }
+  // Update cost label
+  const clbl=document.getElementById('rst-cost-lbl');
+  const slbl=document.getElementById('rst-sell-lbl');
+  if(clbl) clbl.textContent=isBulk?`${pu}`:bu;
+  if(slbl) slbl.textContent=bu;
+  // Update opening stock hint
+  const qhint=document.getElementById('rst-qty-hint');
+  if(qhint) qhint.textContent=isBulk?`Enter purchase units (${pu}); app converts to ${cf} ${bu} per ${pu}`:`Enter ${bu}`;
   updateRstPrev();
 };
 window.updateRstPrev=()=>{
-  const cost=parseFloat(v('rst-cost'))||0,sell=parseFloat(v('rst-sell'))||0;
-  const cf=parseFloat(v('rst-cf'))||1,pu=v('rst-pu')||'pcs',su=v('rst-su')||'pcs';
-  if(!cost&&!sell){document.getElementById('rst-prev').style.display='none';return;}
-  const isBulk=cf>1&&pu!==su;
-  const costPerSU=isBulk?cost/cf:cost;
-  const profit=sell-costPerSU,margin=sell>0?((profit/sell)*100).toFixed(1):0;
-  document.getElementById('rst-prev').style.display='block';
-  const setTxt=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
-  setTxt('rst-p',`${fmt(profit)} / ${su}${isBulk?' (cost per '+su+': '+fmt(costPerSU)+')':''}`);
-  setTxt('rst-m',margin+'%');
-};
-window.submitProduct=async()=>{
-  const name=v('rst-name').trim(),cost=parseFloat(v('rst-cost')),sell=parseFloat(v('rst-sell'));
-  if(!name){toast('Enter product name');return;}
-  if(isNaN(cost)||cost<0){toast('Enter cost price');return;}
-  if(isNaN(sell)||sell<0){toast('Enter selling price');return;}
-  const pu=v('rst-pu')||'pcs',su=v('rst-su')||'pcs';
+  const cost=parseFloat(v('rst-cost'))||0, sell=parseFloat(v('rst-sell'))||0;
   const cf=parseFloat(v('rst-cf'))||1;
-  const isBulk=cf>1&&pu!==su;
-  const costPerSaleUnit=isBulk?cost/cf:cost;
+  const bu=v('rst-bu')||'pcs', pu=v('rst-pu')||'pcs';
+  const isBulk=cf>1||bu!==pu;
+  const prevEl=document.getElementById('rst-prev');
+  if(!cost&&!sell){if(prevEl)prevEl.style.display='none';return;}
+  // Cost entered is per-purchase-unit; derive per-base-unit
+  const costPerBase=isBulk?cost/cf:cost;
+  const profit=sell-costPerBase;
+  const margin=sell>0?((profit/sell)*100).toFixed(1):0;
+  if(prevEl)prevEl.style.display='block';
+  const setTxt=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  setTxt('rst-p-cost',`${fmt(costPerBase)} / ${bu}${isBulk?' (÷'+cf+')':''}`);
+  setTxt('rst-p',`${fmt(profit)} / ${bu}`);
+  setTxt('rst-m',`${margin}%`);
+  const plbl=document.getElementById('rst-p-lbl');
+  if(plbl)plbl.textContent=`Cost / ${bu}`;
+};
+
+window.submitProduct=async()=>{
+  const name=v('rst-name').trim();
+  const bulkCost=parseFloat(v('rst-cost')), sell=parseFloat(v('rst-sell'));
+  if(!name){toast('Enter product name');return;}
+  if(isNaN(bulkCost)||bulkCost<0){toast('Enter cost price');return;}
+  if(isNaN(sell)||sell<0){toast('Enter selling price');return;}
+  const bu=v('rst-bu')||'pcs', pu=v('rst-pu')||'pcs';
+  const cf=parseFloat(v('rst-cf'))||1;
+  const isBulk=cf>1||bu!==pu;
+  const costPerBase=isBulk?bulkCost/cf:bulkCost;
   const openingPurchaseQty=parseFloat(v('rst-qty'))||0;
-  const openingStock=openingPurchaseQty*cf; // stored in sale units
-  const reorderLevel=parseFloat(v('rst-reorder'))||5; // per-product, not overridden by settings
+  const openingStock=openingPurchaseQty*cf; // stored in base units
+  const reorderLevel=parseFloat(v('rst-reorder'))||5;
   const id='PRD-'+Date.now();
-  const prod={id,name,category:v('rst-cat'),purchaseUnit:pu,saleUnit:su,conversionFactor:cf,
-    unit:su,costPrice:costPerSaleUnit,sellPrice:sell,
+  const prod={id,name,category:v('rst-cat'),
+    baseUnit:bu,purchaseUnit:pu,saleUnit:bu,unit:bu,conversionFactor:cf,
+    wmaCost:costPerBase,costPrice:costPerBase,sellPrice:sell,
     stock:openingStock,reorderLevel,
     supplierId:'',notes:'',createdAt:new Date().toISOString()};
   INV.push(prod);INV.sort((a,b)=>a.name.localeCompare(b.name));
   closeSheet();renderInventory();renderDashboard();
-  toast(isBulk?`${name} added ✓ (${openingPurchaseQty} ${pu} = ${openingStock} ${su})`:name+' added ✓');
+  const msg=isBulk&&openingPurchaseQty>0
+    ?`"${name}" added ✓ (${openingPurchaseQty} ${pu} → ${openingStock} ${bu} in stock)`
+    :`"${name}" added ✓`;
+  toast(msg);
   addProduct(prod).catch(err=>console.error('Product save error:',err));
 };
+
 window.rstTab=(tab,btn)=>{
   document.querySelectorAll('#rst-tabs .tab').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
-  document.getElementById('rst-new').className='tab-panel'+(tab==='new'?' active':'');
-  document.getElementById('rst-restock').className='tab-panel'+(tab==='restock'?' active':'');
+  ['new','restock','history'].forEach(t=>{
+    const el=document.getElementById('rst-'+t);
+    if(el)el.className='tab-panel'+(t===tab?' active':'');
+  });
+  if(tab==='history')populateRstDropdowns();
 };
+
+// ── Fill restock form when user selects a product
+window.fillRst=()=>{
+  const id=v('rst-existing'),p=INV.find(x=>x.id===id);
+  if(!p){document.getElementById('rst-info').style.display='none';return;}
+  const bu=pBaseUnit(p), pu=pPurchaseUnit(p), cf=p.conversionFactor||1;
+  const wma=pWMACost(p), sell=p.sellPrice||0;
+  const isBulk=cf>1||bu!==pu;
+  const margin=sell>0?((sell-wma)/sell*100).toFixed(1):0;
+
+  const setTxt=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  setTxt('rst-cur-stock',`${p.stock||0} ${bu}`);
+  setTxt('rst-cur-wma',`${fmt(wma)} / ${bu}`);
+  setTxt('rst-cur-sell',`${fmt(sell)} / ${bu}`);
+  setTxt('rst-cur-margin',`${margin}%`);
+  setTxt('rst-cur-conv',isBulk?`1 ${pu} = ${cf} ${bu}`:`Same unit (${bu})`);
+  setTxt('rst-pu-lbl',`in ${pu}s`);
+  setTxt('rst-bulk-lbl',pu);
+  setTxt('rst-sell-lbl2',bu);
+  sv('rst-nc','');sv('rst-ns','');sv('rst-addqty','');
+  const lp=document.getElementById('wma-live-panel');if(lp)lp.classList.remove('show');
+  document.getElementById('rst-info').style.display='block';
+};
+
+// ── Live WMA preview (fires on every keystroke in restock form)
+window.updateWMAPreview=()=>{
+  const id=v('rst-existing'),p=INV.find(x=>x.id===id);if(!p)return;
+  const purchaseQty=parseFloat(v('rst-addqty'))||0;
+  const bulkCost=parseFloat(v('rst-nc'))||0;
+  if(!purchaseQty||!bulkCost){
+    const lp=document.getElementById('wma-live-panel');if(lp)lp.classList.remove('show');
+    return;
+  }
+  const bu=pBaseUnit(p), pu=pPurchaseUnit(p), cf=p.conversionFactor||1;
+  const prevStock=p.stock||0, prevWMA=pWMACost(p);
+  const baseUnitsAdded=purchaseQty*cf;
+  const newCostPerBase=bulkCost/cf;
+  let newWMA;
+  if(prevStock<=0||prevWMA<=0){newWMA=newCostPerBase;}
+  else{
+    const existVal=prevStock*prevWMA;
+    const newVal=baseUnitsAdded*newCostPerBase;
+    newWMA=(existVal+newVal)/(prevStock+baseUnitsAdded);
+  }
+  const newStock=prevStock+baseUnitsAdded;
+  const sellPrice=parseFloat(v('rst-ns'))||(p.sellPrice||0);
+  const newMargin=sellPrice>0?((sellPrice-newWMA)/sellPrice*100).toFixed(1):0;
+  const costDelta=newWMA-(prevWMA||newCostPerBase);
+  const setTxt=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  setTxt('wlp-exist-val',prevStock>0?`${fmt(prevStock*prevWMA)} (${prevStock} ${bu} × ${fmt(prevWMA)})`:'No existing stock');
+  setTxt('wlp-new-val',`${fmt(baseUnitsAdded*newCostPerBase)} (${baseUnitsAdded} ${bu} × ${fmt(newCostPerBase)})`);
+  setTxt('wlp-units-add',`${baseUnitsAdded} ${bu} (${purchaseQty} ${pu} × ${cf})`);
+  setTxt('wlp-new-cpu',`${fmt(newCostPerBase)} / ${bu}`);
+  setTxt('wlp-wma',`${fmt(newWMA)} / ${bu}`);
+  setTxt('wlp-margin',`${newMargin}%${sellPrice>0?' @ sell '+fmt(sellPrice):''}` );
+  setTxt('wlp-new-stock',`${newStock} ${bu}`);
+  // Direction badge
+  const dir=document.getElementById('wlp-direction');
+  if(dir&&prevWMA>0){
+    dir.style.display='inline-flex';
+    if(costDelta<-0.001){dir.className='wma-direction wma-dn';dir.textContent='▼ Cost Down';}
+    else if(costDelta>0.001){dir.className='wma-direction wma-up';dir.textContent='▲ Cost Up';}
+    else{dir.className='wma-direction wma-nc';dir.textContent='— No Change';}
+  }else if(dir){dir.style.display='none';}
+  const lp=document.getElementById('wma-live-panel');if(lp)lp.classList.add('show');
+};
+
+// ── Confirm restock: call WMA engine, update INV in memory, show alert
 window.submitRestock=async()=>{
   const id=v('rst-existing');if(!id){toast('Select a product');return;}
   const purchaseQty=parseFloat(v('rst-addqty'));
-  if(!purchaseQty||purchaseQty<=0){toast('Enter quantity to add');return;}
-  const idx=INV.findIndex(x=>x.id===id);if(idx<0)return;
-  const p=INV[idx];
-  const cf=p.conversionFactor||1;
-  const isBulk=cf>1&&p.purchaseUnit&&p.purchaseUnit!==p.saleUnit;
-  // Convert purchase units to sale units
-  const saleUnitsToAdd=purchaseQty*cf;
-  const newStock=(p.stock||0)+saleUnitsToAdd;
-  const nc=parseFloat(v('rst-nc'))||null,ns=parseFloat(v('rst-ns'))||null;
-  // If new cost entered, it's per-purchase-unit; convert to per-sale-unit
-  const ncPerSaleUnit=nc?(isBulk?nc/cf:nc):null;
-  INV[idx].stock=newStock;
-  if(ncPerSaleUnit)INV[idx].costPrice=ncPerSaleUnit;
-  if(ns)INV[idx].sellPrice=ns;
-  closeSheet();renderInventory();renderDashboard();
-  const msg=isBulk
-    ?`Restocked: ${purchaseQty} ${p.purchaseUnit}(s) = ${saleUnitsToAdd} ${p.saleUnit} added. New total: ${newStock} ${p.saleUnit} ✓`
-    :`Stock updated — new total: ${newStock} ${p.saleUnit||'pcs'} ✓`;
-  toast(msg);
-  updateProductStock(id,newStock,ncPerSaleUnit,ns).catch(err=>console.error('Restock error:',err));
+  const bulkCost=parseFloat(v('rst-nc'));
+  if(!purchaseQty||purchaseQty<=0){toast('Enter quantity purchased');return;}
+  if(!bulkCost||bulkCost<=0){toast('Enter bulk cost per purchase unit');return;}
+  const newSell=parseFloat(v('rst-ns'))||null;
+  toast('Calculating WMA…');
+  try{
+    const result=await restockWithWMA(id,purchaseQty,bulkCost,newSell);
+    // Update in-memory product
+    const idx=INV.findIndex(x=>x.id===id);
+    if(idx>=0){
+      INV[idx].stock=result.newStock;
+      INV[idx].wmaCost=result.newWMACost;
+      INV[idx].costPrice=result.newWMACost;
+      if(newSell)INV[idx].sellPrice=newSell;
+    }
+    closeSheet();
+    renderInventory();renderDashboard();
+    // Show WMA alert
+    showWMAAlert(result);
+  }catch(err){
+    console.error('Restock WMA error:',err);
+    toast('Restock failed: '+err.message);
+  }
 };
+
+// ── WMA Alert Modal ──────────────────────────────────────────────────────────
+function showWMAAlert(result){
+  const {alertType,alertData,productName,purchaseQty,purchaseUnit,baseUnitsAdded,baseUnit,
+         bulkCostPerPurchaseUnit,newCostPerBase,prevStock,prevWMACost,newStock,newWMACost,newSellPrice} = result;
+  const fmt2=n=>fmt(n);
+  const pct=n=>(n>=0?'+':'')+n.toFixed(1)+'%';
+  const hdr=document.getElementById('wma-alert-header');
+  const icon=document.getElementById('wma-alert-icon');
+  const type=document.getElementById('wma-alert-type');
+  const title=document.getElementById('wma-alert-title');
+  const sub=document.getElementById('wma-alert-sub');
+  const body=document.getElementById('wma-alert-body');
+  const actions=document.getElementById('wma-alert-actions');
+
+  // Common calc breakdown
+  const calcBreakdown=`
+    <div class="wma-calc-table" style="margin-bottom:12px">
+      <div class="wma-calc-row"><span class="cl">Product</span><span class="cv">${esc(productName)}</span></div>
+      <div class="wma-calc-row"><span class="cl">Purchased</span><span class="cv">${purchaseQty} ${purchaseUnit} → ${baseUnitsAdded} ${baseUnit}</span></div>
+      <div class="wma-calc-row"><span class="cl">Bulk cost per ${purchaseUnit}</span><span class="cv">${fmt2(bulkCostPerPurchaseUnit)}</span></div>
+      <div class="wma-calc-row"><span class="cl">New cost per ${baseUnit}</span><span class="cv">${fmt2(newCostPerBase)}</span></div>
+      <div class="wma-calc-row"><span class="cl">WMA formula</span><span class="cv" style="font-size:11px;text-align:right">(${prevStock} × ${fmt2(prevWMACost)} + ${baseUnitsAdded} × ${fmt2(newCostPerBase)}) ÷ ${newStock}</span></div>
+      <div class="wma-calc-row total"><span class="cl">New WMA Cost / ${baseUnit}</span><span class="cv a">${fmt2(newWMACost)}</span></div>
+      <div class="wma-calc-row total"><span class="cl">New Total Stock</span><span class="cv">${newStock} ${baseUnit}</span></div>
+    </div>`;
+
+  if(alertType==='INITIAL'||alertType==='NO_CHANGE'){
+    hdr.className='wma-alert-header initial';
+    icon.textContent='📦';type.textContent='RESTOCKED';
+    title.textContent='Stock Updated';
+    sub.textContent=`${baseUnitsAdded} ${baseUnit} added · WMA Cost ${fmt2(newWMACost)} / ${baseUnit}`;
+    body.innerHTML=calcBreakdown;
+    actions.innerHTML='';
+  }
+  else if(alertType==='MARGIN_GAIN'){
+    const {oldMarginPct,newMarginPct,marginGainPct,profitGainPerUnit,currentSellPrice}=alertData;
+    hdr.className='wma-alert-header gain';
+    icon.textContent='📈';type.textContent='MARGIN GAIN ALERT';
+    title.textContent='Your profit per unit has increased!';
+    sub.textContent=`Cost dropped from ${fmt2(prevWMACost)} → ${fmt2(newWMACost)} / ${baseUnit}`;
+    body.innerHTML=calcBreakdown+`
+      <div class="wma-calc-table">
+        <div class="wma-calc-row"><span class="cl">Previous WMA Cost</span><span class="cv">${fmt2(prevWMACost)} / ${baseUnit}</span></div>
+        <div class="wma-calc-row"><span class="cl">New WMA Cost</span><span class="cv g">${fmt2(newWMACost)} / ${baseUnit}</span></div>
+        <div class="wma-calc-row"><span class="cl">Cost saving per unit</span><span class="cv g">▼ ${fmt2(profitGainPerUnit)}</span></div>
+        <div class="wma-calc-row"><span class="cl">Previous margin</span><span class="cv">${oldMarginPct}%</span></div>
+        <div class="wma-calc-row total"><span class="cl">New margin @ ${fmt2(currentSellPrice)}</span><span class="cv g">${newMarginPct}% (+${marginGainPct}%)</span></div>
+      </div>
+      <div class="alert al-s" style="margin-top:10px;font-size:13px">💡 Tip: You can maintain your current selling price for extra profit, or pass savings to customers to boost volume.</div>`;
+    actions.innerHTML='';
+  }
+  else if(alertType==='PRICE_PROTECTION'){
+    const {minSellPrice30pct,currentSellPrice,currentMarginPct,isBelowFloor,costDeltaPct,shortfallPct}=alertData;
+    hdr.className='wma-alert-header protect';
+    icon.textContent='🛡️';type.textContent='PRICE PROTECTION ALERT';
+    title.textContent=isBelowFloor?'Current price is below 30% margin floor!':'Cost increased — review your pricing';
+    sub.textContent=`Cost rose ${pct(costDeltaPct)} · New WMA ${fmt2(newWMACost)} / ${baseUnit}`;
+    body.innerHTML=calcBreakdown+`
+      <div class="wma-calc-table">
+        <div class="wma-calc-row"><span class="cl">Previous WMA Cost</span><span class="cv">${fmt2(prevWMACost)} / ${baseUnit}</span></div>
+        <div class="wma-calc-row"><span class="cl">New WMA Cost</span><span class="cv r">${fmt2(newWMACost)} / ${baseUnit}</span></div>
+        <div class="wma-calc-row"><span class="cl">Cost increase</span><span class="cv r">▲ ${pct(costDeltaPct)}</span></div>
+        <div class="wma-calc-row"><span class="cl">Current sell price</span><span class="cv">${fmt2(currentSellPrice)} / ${baseUnit}</span></div>
+        <div class="wma-calc-row"><span class="cl">Current margin</span><span class="cv ${isBelowFloor?'r':'g'}">${currentMarginPct}%${isBelowFloor?' ⚠️':' ✓'}</span></div>
+        ${isBelowFloor?`<div class="wma-calc-row"><span class="cl">Margin shortfall</span><span class="cv r">${shortfallPct}% below 30% floor</span></div>`:''}
+      </div>
+      <div class="wma-suggestion">
+        <div class="wma-suggestion-lbl">🛡️ Suggested Minimum Sell Price (30% margin)</div>
+        <div class="wma-suggestion-price">${fmt2(minSellPrice30pct)} / ${baseUnit}</div>
+        <div style="font-size:11px;color:var(--warning);margin-top:3px">= WMA Cost ${fmt2(newWMACost)} ÷ 0.70</div>
+      </div>
+      ${isBelowFloor?'<div class="alert al-e" style="font-size:13px">⚠️ Your current price of '+fmt2(currentSellPrice)+' gives only '+currentMarginPct+'% margin. Update your price to protect profitability.</div>':'<div class="alert al-s" style="font-size:13px">✅ Your current price still clears 30% margin. No immediate action needed, but consider reviewing.</div>'}`;
+    actions.innerHTML=isBelowFloor
+      ?`<button class="btn btn-danger btn-block" onclick="acceptPriceProtection('${result.product.id}',${minSellPrice30pct})">🛡️ Update Sell Price to ${fmt2(minSellPrice30pct)}</button>`
+      :`<button class="btn btn-a btn-block" onclick="acceptPriceProtection('${result.product.id}',${minSellPrice30pct})">Update to Suggested Price</button>`;
+  }
+  openSheet('sh-wma-alert');
+}
+
+window.acceptPriceProtection=async(productId,newSell)=>{
+  const idx=INV.findIndex(x=>x.id===productId);
+  if(idx<0){closeSheet();return;}
+  INV[idx].sellPrice=newSell;
+  updateProductStock(productId,INV[idx].stock,null,newSell).catch(console.error);
+  closeSheet();renderInventory();
+  toast(`Sell price updated to ${fmt(newSell)} ✓`);
+};
+
+// ── WMA Cost History tab
+window.loadWMAHistory=async()=>{
+  const id=v('rst-hist-prod');
+  const out=document.getElementById('wma-history-output');
+  if(!id){if(out)out.innerHTML='';return;}
+  const p=INV.find(x=>x.id===id);
+  if(!out)return;
+  out.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted)">Loading…</div>';
+  const hist=await getWMAHistory(id);
+  if(!hist.length){out.innerHTML='<div class="empty"><div class="empty-ico">📜</div><div class="empty-ttl">No restock history yet</div></div>';return;}
+  const bu=p?pBaseUnit(p):'units';
+  out.innerHTML=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin:12px 0 6px">WMA Cost History — ${esc(p?p.name:'')}</div>`+
+    hist.map(h=>{
+      const d={gain:'gain',MARGIN_GAIN:'gain',PRICE_PROTECTION:'protect',INITIAL:'initial',NO_CHANGE:'nc'}[h.alertType]||'nc';
+      const icon={INITIAL:'🆕',MARGIN_GAIN:'📈',PRICE_PROTECTION:'🛡️',NO_CHANGE:'➡️'}[h.alertType]||'📦';
+      const lbl={INITIAL:'Opening',MARGIN_GAIN:'Cost ↓ Margin +',PRICE_PROTECTION:'Cost ↑ Alert',NO_CHANGE:'No Change'}[h.alertType]||h.alertType;
+      return `<div class="wma-history-row">
+        <div class="wma-dot ${d}"></div>
+        <div style="flex:1">
+          <div style="font-weight:600">${icon} ${lbl} — ${fmtD(h.date)}</div>
+          <div style="color:var(--muted);margin-top:2px">
+            +${h.baseUnitsAdded} ${h.baseUnit} (${h.purchaseQty} ${h.purchaseUnit}) · Bulk ${fmt(h.bulkCostPerPurchaseUnit)}/${h.purchaseUnit}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-weight:700;font-family:var(--mono);font-size:12px">${fmt(h.newWMACost)}/${h.baseUnit}</div>
+          <div style="font-size:10px;color:var(--muted)">prev: ${fmt(h.prevWMACost)}</div>
+        </div>
+      </div>`;
+    }).join('');
+};
+
 window.editProduct=id=>{
   openSheet('sh-product');
   const tabs=document.querySelectorAll('#rst-tabs .tab');
   rstTab('restock',tabs[1]);
-  populateRstDropdown();sv('rst-existing',id);window.fillRst();
+  populateRstDropdowns();sv('rst-existing',id);window.fillRst();
 };
 
 // ── FINANCE / EXPENSES ────────────────────────────────────────────────────────
