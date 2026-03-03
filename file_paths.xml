@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    FileProvider paths for BizTrack Pro.
+
+    RULES (Android 11+ Scoped Storage):
+    - cache-path        : app cache dir (/data/data/<pkg>/cache)  — always OK, no permissions
+    - files-path        : app internal files                        — always OK, no permissions
+    - external-files-path: app-scoped external dir                 — OK on Android 10+, no permissions
+    - external-path     : BLOCKED on Android 11+ under scoped storage — DO NOT USE
+    - external-cache-path: external cache                          — OK, no permissions
+
+    Strategy: write files to Cache or app-scoped External, then share via Share plugin.
+    User can then save to Drive/WhatsApp/Files from the share sheet.
+-->
+<paths>
+    <cache-path name="cache" path="." />
+    <files-path name="files" path="." />
+    <external-files-path name="external_files" path="." />
+    <external-cache-path name="external_cache" path="." />
+</paths>
