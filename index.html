@@ -1654,6 +1654,7 @@ let _pickerSelId = null; // currently selected product id in picker
 window.openProdPicker = () => {
   document.getElementById('sh-sale').style.display = 'none';
   const picker = document.getElementById('sh-prod-picker');
+  picker.style.display = 'flex';
   picker.classList.add('open');
   // Ensure overlay stays on
   document.getElementById('overlay').classList.add('on');
@@ -1669,6 +1670,7 @@ window.openProdPicker = () => {
 
 window.closeProdPicker = () => {
   document.getElementById('sh-prod-picker').classList.remove('open');
+  picker.style.display = '';
   document.getElementById('sh-sale').style.display = 'block';
   _cartEditIdx = -1;
   renderCartLines();
