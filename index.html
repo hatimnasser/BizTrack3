@@ -1669,8 +1669,11 @@ window.openProdPicker = () => {
 };
 
 window.closeProdPicker = () => {
-  document.getElementById('sh-prod-picker').classList.remove('open');
-  picker.style.display = '';
+  const picker = document.getElementById('sh-prod-picker');
+  if (picker) {
+    picker.classList.remove('open');
+    picker.style.display = 'none';
+  }
   document.getElementById('sh-sale').style.display = 'block';
   _cartEditIdx = -1;
   renderCartLines();
