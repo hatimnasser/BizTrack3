@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BizTrack APK Download</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at top, #1e293b, var(--bg));
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      padding: 20px;
+    }
+    .card {
+      width: min(680px, 100%);
+      background: color-mix(in srgb, var(--card) 92%, black);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 26px;
+      box-shadow: 0 20px 48px rgba(0,0,0,.35);
+    }
+    h1 { margin: 0 0 8px; font-size: clamp(1.5rem, 3.4vw, 2rem); }
+    p { color: var(--muted); line-height: 1.6; margin-top: 0; }
+    .btn {
+      display: inline-block;
+      margin: 16px 0 10px;
+      background: var(--primary);
+      color: #052e27;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 14px 20px;
+      border-radius: 10px;
+    }
+    .btn:hover { background: var(--primary-dark); color: #ecfeff; }
+    .tip {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 12px 0 8px;
+      line-height: 1.5;
+    }
+    ol { margin: 10px 0 0 20px; color: var(--muted); }
+    code { background: #0b1220; padding: 2px 6px; border-radius: 6px; color: #a7f3d0; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Download BizTrack APK</h1>
+    <p>Tap the button below to download the latest BizTrack Android installer (APK).</p>
+
+    <a class="btn" id="downloadButton" href="#" download>Download BizTrack APK</a>
+
+    <div class="tip">
+      <strong>Install tip:</strong> When Android asks 'Install from unknown source' — tap Settings, enable it for Chrome, go back and tap Install. This is safe — it is the same way many apps in Uganda are installed
+    </div>
+
+    <ol>
+      <li>Upload your APK to a direct URL (GitHub Release, Drive direct link, S3, etc.).</li>
+      <li>Set the URL in this file via <code>APK_DOWNLOAD_URL</code>.</li>
+      <li>Deploy this repo to Vercel for free.</li>
+    </ol>
+  </main>
+
+  <script>
+    const APK_DOWNLOAD_URL = 'https://github.com/hatimnasser/BizTrack3/releases/tag/BizTrack';
+    const button = document.getElementById('downloadButton');
+
+    if (APK_DOWNLOAD_URL.includes('example.com/path/to/BizTrack.apk')) {
+      button.textContent = 'Set APK URL in apk-download.html';
+      button.removeAttribute('download');
+      button.style.opacity = '0.7';
+      button.style.pointerEvents = 'none';
+    } else {
+      button.href = APK_DOWNLOAD_URL;
+    }
+  </script>
+</body>
+</html>
